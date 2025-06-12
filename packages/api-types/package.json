@@ -1,0 +1,19 @@
+{
+    "name": "@repo/api-types",
+    "version": "0.0.0",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "./dist/**"
+    ],
+    "scripts": {
+        "build": "tsc -b -v"
+    },
+    "devDependencies": {
+        "@repo/eslint-config": "*",
+        "@repo/typescript-config": "*",
+        "@types/node": "^22.15.3",
+        "eslint": "^9.28.0",
+        "typescript": "5.8.2"
+    }
+}
