@@ -5204,18 +5204,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"household-account-book-web@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "household-account-book-web@workspace:."
-  dependencies:
-    "@repo/eslint-config": "workspace:*"
-    "@repo/typescript-config": "workspace:*"
-    prettier: "npm:^3.5.3"
-    turbo: "npm:^2.5.4"
-    typescript: "npm:5.8.2"
-  languageName: unknown
-  linkType: soft
-
 "html-escaper@npm:^2.0.0":
   version: 2.0.2
   resolution: "html-escaper@npm:2.0.2"
@@ -9376,6 +9364,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"turbo-nextjs-nestjs-monorepo@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "turbo-nextjs-nestjs-monorepo@workspace:."
+  dependencies:
+    "@repo/eslint-config": "workspace:*"
+    "@repo/typescript-config": "workspace:*"
+    prettier: "npm:^3.5.3"
+    turbo: "npm:^2.5.4"
+    typescript: "npm:5.8.2"
+  languageName: unknown
+  linkType: soft
+
 "turbo-windows-64@npm:2.5.4":
   version: 2.5.4
   resolution: "turbo-windows-64@npm:2.5.4"
@@ -9796,6 +9796,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "web@workspace:apps/web"
   dependencies:
+    "@repo/api-types": "workspace:*"
     "@repo/eslint-config": "npm:*"
     "@repo/typescript-config": "npm:*"
     "@repo/ui": "npm:*"
