@@ -1,21 +1,23 @@
 {
-  "extends": "@repo/typescript-config/nextjs.json",
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "next"
-      }
+    "extends": "@repo/typescript-config/nextjs.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "jsxImportSource": "@emotion/react",
+        "paths": {
+            "@/*": ["./*"]
+        },
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ]
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "next-env.d.ts",
+        "next.config.js",
+        ".next/types/**/*.ts"
     ],
-    "isolatedModules": true
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    "next.config.js",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "exclude": ["node_modules"]
 }

@@ -1,0 +1,27 @@
+{
+    "name": "@repo/shared",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "build": "tsup ./index.ts",
+        "dev": "tsup ./index.ts --watch"
+    },
+    "exports": {
+        ".": {
+            "types": "./index.ts",
+            "default": "./dist/index.js"
+        }
+    },
+    "devDependencies": {
+        "@repo/database": "workspace:*",
+        "@repo/typescript-config": "workspace:*",
+        "@types/node": "^22.15.30",
+        "ts-node": "^10.9.2",
+        "tsup": "^8.5.0",
+        "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "@nestjs/common": "^11.1.8",
+        "axios": "^1.11.0"
+    }
+}

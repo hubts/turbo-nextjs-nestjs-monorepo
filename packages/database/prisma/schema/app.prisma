@@ -1,0 +1,7 @@
+model Vault {
+    id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+    key   String @unique @db.VarChar
+    value String @db.VarChar
+    json  Json?
+}
