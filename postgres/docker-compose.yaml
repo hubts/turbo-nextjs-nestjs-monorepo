@@ -1,0 +1,22 @@
+services:
+    postgres:
+        image: postgres:15
+        container_name: ${CONTAINER_NAME}
+        restart: always
+        ports:
+            - ${POSTGRES_PORT}:5432
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            PGDATA: /var/lib/postgresql/data/pgdata
+        volumes:
+            - ./${POSTGRES_VOLUME_DIR}:/var/lib/postgresql/data/pgdata
+            - ./postgresql.conf:/tmp/postgresql.conf
+        command: postgres -c config_file=/tmp/postgresql.conf
+        networks:
+            - backend
+
+networks:
+    backend:
+        external: true

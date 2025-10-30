@@ -1,0 +1,50 @@
+services:
+    api:
+        container_name: api
+        build:
+            context: .
+            dockerfile: apps/api/Dockerfile
+        restart: always
+        ports:
+            - "8000:8000"
+        env_file:
+            - apps/api/.env.prod
+        volumes:
+            - ./apps/api/uploads:/app/apps/api/uploads # If you need to store files, you can mount a volume here.
+        depends_on:
+            - db
+        networks:
+            - turbo_network
+    web:
+        container_name: web
+        build:
+            context: .
+            dockerfile: apps/web/Dockerfile
+        restart: always
+        ports:
+            - "3000:3000"
+        env_file:
+            - apps/web/.env.production
+        depends_on:
+            - api
+        networks:
+            - turbo_network
+    db:
+        container_name: db
+        image: postgres:15
+        restart: always
+        ports:
+            - "${POSTGRES_PORT}:5432"
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        networks:
+            - turbo_network
+volumes:
+    pgdata:
+networks:
+    turbo_network:
+        driver: bridge
