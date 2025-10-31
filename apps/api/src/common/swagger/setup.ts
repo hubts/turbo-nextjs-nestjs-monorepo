@@ -1,63 +1,52 @@
-import { NestExpressApplication } from "@nestjs/platform-express";
+import { INestApplication } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { SwaggerSetupOptions } from "./interface";
-import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
+
+interface SwaggerOptions {
+    path: string;
+    title: string;
+    description: string;
+    version: string;
+    serverUrl?: string;
+    extraModels?: Function[];
+    include?: Function[];
+}
 
 export function setupSwagger(
-    app: NestExpressApplication,
-    options: SwaggerSetupOptions
+    app: INestApplication,
+    options: SwaggerOptions
 ): void {
-    const {
-        path,
-        serverUrl,
-        localhostPort,
-        title,
-        description,
-        version,
-        extraModels,
-    } = options;
+    const config = new DocumentBuilder()
+        .setTitle(options.title)
+        .setDescription(options.description)
+        .setVersion(options.version)
+        .addServer(options.serverUrl || "")
+        .addBearerAuth({
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
+            description: "JWT Authorization header using the Bearer scheme",
+            in: "header",
+            name: "Authorization",
+        })
+        .addBasicAuth({
+            type: "apiKey",
+            in: "header",
+            name: "secret",
+        })
+        .build();
 
-    // Setup the configurations.
-    const swaggerConfig = new DocumentBuilder();
-    if (serverUrl) {
-        swaggerConfig.addServer(serverUrl);
-    } else if (localhostPort) {
-        swaggerConfig.addServer(`http://localhost:${localhostPort}`);
-    }
-    if (title) {
-        swaggerConfig.setTitle(title);
-    }
-    if (description) {
-        swaggerConfig.setDescription(description);
-    }
-    if (version) {
-        swaggerConfig.setVersion(version);
-    }
-
-    // JWT
-    swaggerConfig.addBearerAuth({
-        type: "http",
-        bearerFormat: "JWT",
+    const document = SwaggerModule.createDocument(app, config, {
+        extraModels: options.extraModels,
+        include: options.include,
+        autoTagControllers: true,
     });
-    const swaggerDocument = SwaggerModule.createDocument(
-        app,
-        swaggerConfig.build(),
-        {
-            extraModels: extraModels ?? [],
-        }
-    );
-
-    // NOTE: You can change the style of swagger from here.
-    const theme = new SwaggerTheme();
-    const style = theme.getBuffer(SwaggerThemeNameEnum.ONE_DARK);
-
-    // Finally
-    SwaggerModule.setup(path, app, swaggerDocument, {
+    SwaggerModule.setup(options.path, app, document, {
         explorer: true,
-        customCss: style,
+        customSiteTitle: `${options.title} API Documentation`,
         swaggerOptions: {
+            persistAuthorization: true,
             tagsSorter: "alpha",
-            // operationsSorter: "alpha",
+            operationsSorter: "alpha",
         },
     });
 }

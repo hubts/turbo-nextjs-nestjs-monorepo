@@ -1,29 +1,47 @@
-import { Delete, Get, Patch, Post, Put } from "@nestjs/common";
-import { ApiOperation } from "@nestjs/swagger";
-import { ApiRouteOptions, ErrorName, HttpMethod } from "@repo/shared";
+import {
+    All,
+    Delete,
+    Get,
+    Head,
+    NotImplementedException,
+    Options,
+    Patch,
+    Post,
+    Put,
+    RequestMethod,
+} from "@nestjs/common";
+import { ApiBody, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiMethodOptions } from "@repo/shared";
 // import { JwtRolesAuth } from "../auth/jwt-roles-auth.decorator";
-import { ApiResErrors } from "./api-res-errors.decorator";
 import {
     ApiResSuccess,
     ApiResSuccessOptions,
 } from "./api-res-success.decorator";
-import { ExpectedErrorException } from "src/common/error/expected-error.exception";
 
 /**
  * Option interface of API specification.
- *
  * @param summary - Summary of the API.
- * @param method - HTTP method of the API (optional).
  * @param deprecated - Whether the API is deprecated (optional).
  * @param success - Options for the successful API response (optional).
  * @param errors - Error names for the API response (optional).
  */
 export interface ApiSpecOptions {
     summary: string;
-    method?: HttpMethod;
+    additionalDescription?: string;
     deprecated?: boolean;
+    request?: ApiRequestOptions;
     success?: ApiResSuccessOptions;
-    errors?: ErrorName[];
+}
+
+/**
+ * Option interface of API request for 'example'.
+ * @param body - Request body example.
+ * @param query - Request query example.
+ * @param param - Request param example.
+ */
+export interface ApiRequestOptions {
+    body?: any;
+    query?: any;
 }
 
 /**
@@ -35,18 +53,22 @@ export interface ApiSpecOptions {
  * See the examples of usage in any controllers.
  *
  * @param options {ApiSpecOptions} - Options for the API specification.
- *
- * Below are the options inherited from 'ApiRouteOptions' which defines API route.
- * @param subRoute - Sub-route of the API.
- * // @param roles - Required roles for the API.
- * @param description - Description of the API.
+ * @param options {ApiMethodOptions<R>} - Options for the API method.
  */
-export const ApiSpec = (
-    options: ApiSpecOptions & Partial<ApiRouteOptions>
+export const ApiSpec = <R>(
+    options: ApiSpecOptions & ApiMethodOptions<R>
 ): MethodDecorator => {
-    const { method, subRoute, description, summary, deprecated, success } =
-        options;
-    const errors = options.errors ?? [];
+    const {
+        method,
+        subRoute,
+        description,
+        additionalDescription,
+        roles,
+        summary,
+        deprecated,
+        success,
+        request,
+    } = options;
 
     return <T>(
         target: object,
@@ -54,47 +76,34 @@ export const ApiSpec = (
         descriptor: TypedPropertyDescriptor<T>
     ) => {
         // Set HTTP method.
-        let HttpMethod = Get;
-        switch (method) {
-            case "GET": {
-                HttpMethod = Get;
-                break;
-            }
-            case "POST": {
-                HttpMethod = Post;
-                break;
-            }
-            case "PATCH": {
-                HttpMethod = Patch;
-                break;
-            }
-            case "DELETE": {
-                HttpMethod = Delete;
-                break;
-            }
-            case "PUT": {
-                HttpMethod = Put;
-                break;
-            }
-            default: {
-                throw new ExpectedErrorException("NOT_IMPLEMENTED");
-            }
+        const methodToDecorator: {
+            [key: number]: (path?: string | string[]) => MethodDecorator;
+        } = {
+            [RequestMethod.ALL]: All,
+            [RequestMethod.GET]: Get,
+            [RequestMethod.POST]: Post,
+            [RequestMethod.PUT]: Put,
+            [RequestMethod.DELETE]: Delete,
+            [RequestMethod.PATCH]: Patch,
+            [RequestMethod.OPTIONS]: Options,
+            [RequestMethod.HEAD]: Head,
+        };
+        const HttpMethod = methodToDecorator[method];
+        if (!HttpMethod) {
+            throw new NotImplementedException("The method is not implemented");
         }
         HttpMethod(subRoute)(target, key, descriptor);
 
         // Set JWT roles.
         // JwtRolesAuth(roles)(target, key, descriptor);
-        // if (roles?.length) {
-        //     // If roles(permissions) are required, set errors related to access.
-        //     // 401, 403
-        //     errors.push("UNAUTHORIZED", "FORBIDDEN_RESOURCE");
-        // }
 
         // Set API operation.
         ApiOperation({
             operationId: key.toString(),
             summary,
-            description: description?.length ? description.join("\n\n") : "",
+            description: description?.length
+                ? description.join("\n\n")
+                : (additionalDescription ?? ""),
             deprecated: deprecated ?? false,
         })(target, key, descriptor);
 
@@ -103,16 +112,22 @@ export const ApiSpec = (
             ApiResSuccess(success)(target, key, descriptor);
         }
 
-        // Set default errors.
-        // 400, 500, 503
-        errors.push(
-            "BAD_REQUEST",
-            "INTERNAL_SERVER_ERROR",
-            "SERVICE_UNAVAILABLE"
-        );
-        // Set pre-defined error responses.
-        if (errors?.length) {
-            ApiResErrors(errors)(target, key, descriptor);
+        // Set request body.
+        if (request?.body) {
+            ApiBody({ schema: { example: request.body } })(
+                target,
+                key,
+                descriptor
+            );
+        }
+
+        // Set request query.
+        if (request?.query) {
+            ApiQuery({ schema: { example: request.query } })(
+                target,
+                key,
+                descriptor
+            );
         }
 
         // Return.

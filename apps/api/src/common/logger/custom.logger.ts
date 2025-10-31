@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { ServerEnv } from "src/config/config.interface";
 import { CustomLoggerRepository } from "./custom-logger.repository";
-import { PrismaService } from "src/infrastructure/_prisma/prisma.service";
+import { PrismaService } from "src/infrastructure/prisma/prisma.service";
 import { LogOptions } from "./interface/log-options.interface";
 import { faker } from "@faker-js/faker";
 
@@ -22,9 +22,7 @@ export class CustomLogger extends ConsoleLogger implements LoggerService {
             timestamp: true,
         });
         // Set database
-        const prisma = new PrismaService({
-            log: false,
-        });
+        const prisma = new PrismaService();
         this.database = new CustomLoggerRepository(prisma);
         // Set log levels
         const environment = process.env.ENV;

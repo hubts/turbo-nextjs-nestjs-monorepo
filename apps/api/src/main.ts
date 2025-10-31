@@ -12,8 +12,8 @@ import { CustomLogger } from "./common/logger/custom.logger";
 import { setupSwagger } from "./common/swagger/setup";
 import { IServerConfig } from "./config/config.interface";
 import { ServerConfig } from "./config/internal/server.config";
-import { SuccessResponseDto } from "./common/dto/success-response.dto";
 import { SwaggerThemeNameEnum } from "swagger-themes";
+import { CommonResponseDto } from "./common/dto/common-response.dto";
 
 async function run() {
     const logger = new CustomLogger("Main");
@@ -30,7 +30,8 @@ async function run() {
         const packageJson = require("../package.json");
 
         // Custom logger (with database saving)
-        app.useLogger(app.get(CustomLogger));
+        const logger = await app.resolve(CustomLogger);
+        app.useLogger(logger);
 
         // Payload limit
         app.use(json({ limit: "256kb" }));
@@ -40,21 +41,18 @@ async function run() {
             allowedHeaders: ["Content-Type", "Authorization"],
             methods: "GET, POST, PATCH, PUT, DELETE",
             credentials: true,
-            // origin: ["http://localhost:3000"],
-            origin: "*",
+            origin: true,
         });
 
         // Swagger
         const swaggerPath = serverConfig.docs.fullPath;
         setupSwagger(app, {
             path: swaggerPath,
-            theme: SwaggerThemeNameEnum.FEELING_BLUE,
             serverUrl: `${serverConfig.endpoint.external}/${serverConfig.endpoint.globalPrefix}`,
-            // localhostPort: serverConfig.port,
             title: packageJson.name,
             version: packageJson.version,
             description: "Documents to experience API.",
-            extraModels: [SuccessResponseDto],
+            extraModels: [CommonResponseDto],
         });
 
         // Secure HTTP header and compression
@@ -66,31 +64,50 @@ async function run() {
 
         // API prefix and versioning (optional)
         app.setGlobalPrefix(serverConfig.endpoint.globalPrefix);
-        // app.enableVersioning({
-        //     type: VersioningType.URI,
-        // });
 
         /**
          * Start
          */
         const healthCheckController = app.get(HealthCheckController);
         const status = await healthCheckController.getStatus();
-        await app.listen(serverConfig.port, async () => {
-            let log = `Application [ ${packageJson.name}:${packageJson.version} ] is successfully started\n`;
-            log += `< Information >\n`;
-            log += `🌏 Env                 : ${serverConfig.env}\n`;
-            log += `🌏 Application URL     : ${await app.getUrl()}\n`;
-            log += `🌏 External endpoint   : ${serverConfig.endpoint.external}\n`;
-            log += `🌏 Swagger document    : ${serverConfig.endpoint.external}${serverConfig.docs.fullPath}\n`;
-            log += `🌏 Healthy (overview)  : ${
-                status.overview ? "✅" : "🚫"
-            }\n`;
-            log += `🌏 Healthy (details)   : ${Object.keys(status.details)
-                .map(key => `${key} ( ${status.details[key] ? "✅" : "🚫"} )`)
-                .join(", ")}`;
 
-            logger.log(log);
-        });
+        // Try to use the port from serverConfig, and if that fails, try subsequent ports
+        let port = serverConfig.port;
+        let isPortAvailable = false;
+
+        while (!isPortAvailable && port < serverConfig.port + 10) {
+            try {
+                await app.listen(port, "0.0.0.0");
+                isPortAvailable = true;
+
+                let log = `Application [ ${packageJson.name}:${packageJson.version} ] is successfully started\n`;
+                log += `< Information >\n`;
+                log += `🌏 Env                 : ${serverConfig.env}\n`;
+                log += `🌏 Application URL     : ${await app.getUrl()}\n`;
+                log += `🌏 External endpoint   : ${serverConfig.endpoint.external}\n`;
+                log += `🌏 Swagger document    : ${serverConfig.endpoint.external}${serverConfig.docs.fullPath}\n`;
+                log += `🌏 Healthy (overview)  : ${
+                    status.overview ? "✅" : "🚫"
+                }\n`;
+                log += `🌏 Healthy (details)   : ${Object.keys(status.details)
+                    .map(
+                        key => `${key} ( ${status.details[key] ? "✅" : "🚫"} )`
+                    )
+                    .join(", ")}`;
+
+                logger.log(log);
+                break;
+            } catch (error) {
+                if ((error as { code?: string }).code === "EADDRINUSE") {
+                    logger.warn(
+                        `Port ${port} is already in use, trying ${port + 1}...`
+                    );
+                    port++;
+                } else {
+                    throw error; // Re-throw if it's not a port-in-use error
+                }
+            }
+        }
     } catch (error) {
         logger.error(`Failed to start the application: ${error}`);
         process.exit(1);

@@ -1,31 +1,37 @@
 {
     "name": "@repo/database",
     "version": "0.0.0",
-    "private": true,
+    "main": "./dist/index.js",
+    "types": "./src/index.ts",
+    "exports": {
+        ".": {
+            "types": "./src/index.ts",
+            "default": "./dist/index.js"
+        }
+    },
     "scripts": {
-        "build": "tsup ./index.ts",
-        "dev": "tsup ./index.ts --watch",
+        "build": "tsup ./src/index.ts",
+        "dev": "tsup ./src/index.ts --watch",
         "db:generate": "prisma generate",
         "db:push": "prisma db push",
         "db:seed": "prisma db seed",
-        "db:studio": "prisma studio"
+        "db:studio": "prisma studio",
+        "prebuild": "yarn run db:generate",
+        "predev": "yarn run db:generate"
+    },
+    "dependencies": {
+        "@prisma/adapter-pg": "^6.18.0",
+        "@prisma/client": "6.18.0",
+        "pg": "^8.13.1"
     },
     "devDependencies": {
         "@repo/typescript-config": "workspace:*",
         "@types/node": "^22.15.30",
-        "prisma": "^6.9.0",
+        "@types/pg": "^8.11.10",
+        "prisma": "^6.18.0",
         "ts-node": "^10.9.2",
         "tsup": "^8.5.0",
         "typescript": "^5.8.3"
-    },
-    "dependencies": {
-        "@prisma/client": "6.9.0"
-    },
-    "exports": {
-        ".": {
-            "types": "./index.ts",
-            "default": "./dist/index.js"
-        }
     },
     "prisma": {
         "schema": "./prisma/schema",

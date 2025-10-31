@@ -14,7 +14,7 @@ import {
     PrismaHealthIndicator,
     DiskHealthIndicator,
 } from "@nestjs/terminus";
-import { PrismaService } from "src/infrastructure/_prisma/prisma.service";
+import { PrismaService } from "src/infrastructure/prisma/prisma.service";
 
 @ApiTags("Z. HealthCheck")
 @Controller("health")

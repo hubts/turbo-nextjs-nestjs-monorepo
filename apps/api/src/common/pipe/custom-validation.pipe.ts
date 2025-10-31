@@ -1,7 +1,11 @@
-import { Injectable, ArgumentMetadata, ValidationPipe } from "@nestjs/common";
+import {
+    Injectable,
+    ArgumentMetadata,
+    ValidationPipe,
+    BadRequestException,
+} from "@nestjs/common";
 import { plainToClass } from "class-transformer";
 import { validate, ValidationError } from "class-validator";
-import { ExpectedErrorException } from "../error/expected-error.exception";
 
 @Injectable()
 export class CustomValidationPipe extends ValidationPipe {
@@ -35,18 +39,9 @@ export class CustomValidationPipe extends ValidationPipe {
                 messages: string[];
             }[] = [];
             this.searchErrorConstraints(errors, records);
-            const firstErrorMessage = records[0].messages[0];
-            throw new ExpectedErrorException(
-                "BAD_REQUEST",
-                {
-                    message: "Payload validation failed",
-                    errors: records.reduce(
-                        (prev: string[], curr) => prev.concat(curr.messages),
-                        []
-                    ),
-                },
-                firstErrorMessage
-            );
+            throw new BadRequestException("Payload validation failed", {
+                cause: records,
+            });
         }
 
         return transformed;

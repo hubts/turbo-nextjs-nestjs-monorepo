@@ -7,6 +7,7 @@ export const createAppApi = (client: AxiosInstance): AppApi => {
     const api = createApiWrapper(client, AppRoute);
 
     return {
+        connection: () => api.get("connection"),
         login: body => api.post("login", body),
     };
 };

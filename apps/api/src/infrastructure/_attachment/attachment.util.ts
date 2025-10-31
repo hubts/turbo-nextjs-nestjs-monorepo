@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
+import { BadRequestException } from "@nestjs/common";
 import { extname } from "path";
-import { ExpectedErrorException } from "src/common/error/expected-error.exception";
 
 export const imageFileFilter = (
     _: any,
@@ -19,11 +19,7 @@ export const imageFileFilter = (
 ) => {
     if (!file.originalname.match(/\.(jpg|jpeg|png|webp|JPG|JPEG|PNG|WEBP)$/)) {
         return callback(
-            new ExpectedErrorException(
-                "BAD_REQUEST",
-                { file },
-                "Image file only allowed"
-            ),
+            new BadRequestException("Image file only allowed", { cause: file }),
             false
         );
     }
@@ -40,11 +36,7 @@ export const zipFileFilter = (
 ) => {
     if (!file.originalname.match(/\.(zip|ZIP)$/)) {
         return callback(
-            new ExpectedErrorException(
-                "BAD_REQUEST",
-                { file },
-                "Save file only allowed"
-            ),
+            new BadRequestException("Zip file only allowed", { cause: file }),
             false
         );
     }

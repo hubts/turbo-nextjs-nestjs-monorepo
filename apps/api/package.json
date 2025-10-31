@@ -43,7 +43,8 @@
         "helmet": "^8.1.0",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.2",
-        "swagger-themes": "^1.4.3"
+        "swagger-themes": "^1.4.3",
+        "webpack": "^5.102.1"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.1",

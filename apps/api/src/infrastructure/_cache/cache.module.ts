@@ -1,6 +1,6 @@
 import { Global, Module } from "@nestjs/common";
 import { CacheService } from "./cache.service";
-import { PrismaModule } from "../_prisma/prisma.module";
+import { PrismaModule } from "../prisma/prisma.module";
 import { CacheRepository } from "./cache.repository";
 
 @Global()

@@ -1,5 +1,5 @@
 import { Inject, Injectable, NestMiddleware } from "@nestjs/common";
-import { ConfigService, ConfigType } from "@nestjs/config";
+import * as config from "@nestjs/config";
 import { Request, Response, NextFunction } from "express";
 import { join } from "path";
 import express from "express";
@@ -15,7 +15,7 @@ export class ServeStaticUploadsMiddleware implements NestMiddleware {
 
     constructor(
         @Inject(ServerConfig.KEY)
-        private readonly configService: ConfigType<typeof ServerConfig>
+        private readonly configService: config.ConfigType<typeof ServerConfig>
     ) {
         const uploadsPath = join(
             process.cwd(),

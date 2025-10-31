@@ -1,8 +1,6 @@
 import { HttpStatus, RequestMethod, Type } from "@nestjs/common";
 import { ApiExtraModels, ApiResponse, getSchemaPath } from "@nestjs/swagger";
 import { METHOD_METADATA } from "@nestjs/common/constants";
-import { SUCCESS_MESSAGE } from "@repo/shared";
-import { SuccessResponseDto } from "src/common/dto/success-response.dto";
 
 /**
  * Option interface of successful API response.
@@ -66,16 +64,16 @@ export const ApiResSuccess = (options: ApiResSuccessOptions) => {
         // Set response
         ApiResponse({
             status: status ?? statusCode,
-            description: description ?? SUCCESS_MESSAGE.DEFAULT,
+            description: description ?? "Success",
             content: {
                 "application/json": {
                     schema: {
                         allOf: [
                             {
-                                $ref: getSchemaPath(SuccessResponseDto),
-                            },
-                            {
                                 properties: {
+                                    success: {
+                                        example: true,
+                                    },
                                     message: {
                                         example: message,
                                     },

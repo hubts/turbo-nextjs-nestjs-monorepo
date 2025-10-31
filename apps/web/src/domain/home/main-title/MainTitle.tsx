@@ -20,16 +20,14 @@ export default function MainTitle() {
                 </div>
                 <div css={MainTitleStyle.TextContainer}>
                     <h1 css={MainTitleStyle.MainTitle}>
-                        <span css={MainTitleStyle.TitleGlow} data-text="ORDB">
-                            ORDB
+                        <span css={MainTitleStyle.TitleGlow} data-text="">
+                            Main Title
                         </span>
                     </h1>
                     <div css={MainTitleStyle.SubtitleContainer}>
-                        <p css={MainTitleStyle.Subtitle}>
-                            One Piece Random Defense
-                        </p>
+                        <p css={MainTitleStyle.Subtitle}>Subtitle</p>
                         <p css={MainTitleStyle.SubtitleAccent}>
-                            Data Analytics Platform
+                            Subtitle Accent
                         </p>
                     </div>
                 </div>

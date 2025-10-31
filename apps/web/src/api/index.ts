@@ -1,10 +1,5 @@
 import { createAxiosInstance, createSdk } from "@repo/shared";
 
-export * from "./services/user.service";
-export * from "./services/unit.service";
-export * from "./services/clear.service";
-export * from "./services/app.service";
-
 export const getCsrBaseUrl = () => {
     return process.env.NEXT_PUBLIC_API_ENDPOINT;
 };

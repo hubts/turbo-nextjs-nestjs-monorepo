@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConsoleLog, Prisma } from "@repo/database";
-import { PrismaService } from "src/infrastructure/_prisma/prisma.service";
+import { PrismaService } from "src/infrastructure/prisma/prisma.service";
 
 @Injectable()
 export class CustomLoggerRepository {
